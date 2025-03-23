@@ -88,4 +88,3 @@ exports.deleteAll = async (_req, res, next) => {
     return next(new ApiError(500, "Đã xảy ra lỗi khi xóa tất cả sách"));
   }
 };
-
