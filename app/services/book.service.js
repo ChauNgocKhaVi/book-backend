@@ -73,6 +73,3 @@ class BookService {
 }
 
 module.exports = BookService;
-
-
-module.exports = BookService;
