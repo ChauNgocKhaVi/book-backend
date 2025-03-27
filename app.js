@@ -6,7 +6,6 @@ const mongoose = require("mongoose");
 const booksRouter = require("./app/routes/book.route");
 const readersRouter = require("./app/routes/reader.route");
 const publishersRouter = require("./app/routes/publisher.route");
-const usersRouter = require("./app/routes/user.route");
 const borrowsRouter = require("./app/routes/borrow.route");
 const authRoutes = require("./app/routes/auth.route");
 
@@ -16,7 +15,6 @@ app.use(express.json());
 app.use("/api/books", booksRouter);
 app.use("/api/readers", readersRouter);
 app.use("/api/publishers", publishersRouter);
-app.use("/api/users", usersRouter);
 app.use("/api/borrows", borrowsRouter);
 app.use("/api/auth", authRoutes);
 
