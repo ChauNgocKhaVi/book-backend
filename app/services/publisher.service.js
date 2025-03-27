@@ -20,45 +20,40 @@ class PublisherService {
 
     async create(payload) {
         const publisher = this.extractPublisherData(payload);
-        const result = await this.Publisher.findOneAndUpdate(
-            publisher,
-            { $set: publisher },
-            { returnDocument: "after", upsert: true }
-        );
-        return result;
+        const result = await this.Publisher.insertOne(publisher);
+        return result.insertedId ? { _id: result.insertedId, ...publisher } : null;
     }
 
-    async find(filter) {
-        const cursor = await this.Publisher.find(filter);
-        return await cursor.toArray();
+    async find(filter = {}) {
+        return await this.Publisher.find(filter).toArray();
     }
 
     async findById(id) {
-        return await this.Publisher.findOne({
-            _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
-        });
+        if (!ObjectId.isValid(id)) return null;
+        return await this.Publisher.findOne({ _id: new ObjectId(id) });
     }
 
     async update(id, payload) {
-        const filter = { _id: ObjectId.isValid(id) ? new ObjectId(id) : null };
+        if (!ObjectId.isValid(id)) return null;
+        const filter = { _id: new ObjectId(id) };
         const update = this.extractPublisherData(payload);
-        const result = await this.Publisher.findOneAndUpdate(
-            filter,
-            { $set: update },
-            { returnDocument: "after" }
-        );
-        return result;
+        const result = await this.Publisher.updateOne(filter, { $set: update });
+
+        return result.matchedCount > 0 ? { _id: id, ...update } : null;
     }
 
     async delete(id) {
-        return await this.Publisher.findOneAndDelete({
-            _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
-        });
+        if (!ObjectId.isValid(id)) return null;
+        const result = await this.Publisher.deleteOne({ _id: new ObjectId(id) });
+
+        return result.deletedCount > 0;
     }
 
     async deleteAll() {
-        return await this.Publisher.deleteMany({});
+        const result = await this.Publisher.deleteMany({});
+        return result.deletedCount;
     }
+
 }
 
 module.exports = PublisherService;
