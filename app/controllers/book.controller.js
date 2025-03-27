@@ -12,9 +12,7 @@ exports.create = async (req, res, next) => {
     const document = await bookService.create(req.body);
     return res.send(document);
   } catch (error) {
-    return next(
-      new ApiError(500, "Đã xảy ra lỗi khi tạo sách")
-    );
+    return next(new ApiError(500, "Đã xảy ra lỗi khi tạo sách"));
   }
 };
 
@@ -87,4 +85,57 @@ exports.deleteAll = async (_req, res, next) => {
   } catch (error) {
     return next(new ApiError(500, "Đã xảy ra lỗi khi xóa tất cả sách"));
   }
+};
+
+// Phương thức mới để mượn sách
+exports.borrowBook = async (req, res, next) => {
+    const bookId = req.params.id;
+    
+    try {
+        const bookService = new BookService(MongoDB.client);
+        const book = await bookService.findById(bookId);
+
+        if (!book) {
+            return next(new ApiError(404, "Không tìm thấy sách"));
+        }
+
+        // Kiểm tra nếu số lượng sách còn lại > 0
+        if (book.SoQuyen <= 0) {
+            return next(new ApiError(400, "Sách đã hết"));
+        }
+
+        // Giảm số lượng quyển sách đi 1
+        book.SoQuyen -= 1;
+
+        // Cập nhật lại thông tin sách
+        await bookService.update(bookId, book);
+
+        return res.send({ message: "Mượn sách thành công", book });
+    } catch (error) {
+        return next(new ApiError(500, "Đã xảy ra lỗi khi mượn sách"));
+    }
+};
+
+// Phương thức hoàn tác khi xóa lượt mượn
+exports.returnBook = async (req, res, next) => {
+    const bookId = req.params.id;
+
+    try {
+        const bookService = new BookService(MongoDB.client);
+        const book = await bookService.findById(bookId);
+
+        if (!book) {
+            return next(new ApiError(404, "Không tìm thấy sách"));
+        }
+
+        // Tăng số lượng sách lên 1 khi lượt mượn bị xóa
+        book.SoQuyen += 1;
+
+        // Cập nhật lại thông tin sách
+        await bookService.update(bookId, book);
+
+        return res.send({ message: "Trả sách thành công", book });
+    } catch (error) {
+        return next(new ApiError(500, "Đã xảy ra lỗi khi trả sách"));
+    }
 };
