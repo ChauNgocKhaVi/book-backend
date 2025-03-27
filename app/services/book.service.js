@@ -1,4 +1,4 @@
-const { ObjectId, ReturnDocument } = require("mongodb");
+const { ObjectId } = require("mongodb");
 const ApiError = require("../api-error");
 const MongoDB = require("../utils/mongodb.util");
 
@@ -70,6 +70,8 @@ class BookService {
         const result = await this.Book.deleteMany({});
         return result.deletedCount;
     }
+
+
 }
 
 module.exports = BookService;
